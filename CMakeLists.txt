@@ -58,6 +58,12 @@ if(MSVC)
     set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
 endif()
 
+include(cmake/NebulaUtils.cmake)
+
+#clear all target (for compile)
+# 变量 "NebulaModules_TARGETS" 存储所有需要编译的模块
+nebula_clear_vars(NebulaModules_TARGETS)
+
 if(NOT CMAKE_SIZEOF_VOID_P GREATER 0)
     message(FATAL_ERROR "CMake fails to deterimine the bitness of target platform.
     Please check your CMake and compiler installation.
