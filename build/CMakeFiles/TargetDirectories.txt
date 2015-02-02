@@ -1,2 +1,0 @@
-F:/Source/GitHub/Nebula/build/CMakeFiles/ALL_BUILD.dir
-F:/Source/GitHub/Nebula/build/CMakeFiles/ZERO_CHECK.dir
