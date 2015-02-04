@@ -70,6 +70,16 @@ if(NOT CMAKE_SIZEOF_VOID_P GREATER 0)
     If you are crosscompiling then ensure that your CMake toolchain file correctly sets the compiler details.")
 endif()
 
+#
+#------------------------------------------------------------
+NEBULA_OPTION(CMAKE_VERBOSE "Verbose Mode" OFF)
+
+# THE THIRD PART LIBRARIES
+# 编译第三方库选项
+#------------------------------------------------------------
+NEBULA_OPTION(BUILD_LUA                 "Build Lua Library"             ON)
+
+#------------------------------------------------------------
 # NebulaModule.cmake
 # 基本的模块文件，用于设置模块目标，依赖关系等
 include(cmake/NebulaModule.cmake)
@@ -78,6 +88,33 @@ include(cmake/NebulaModule.cmake)
 # 检测C++编译器
 include(cmake/NebulaDetectCXXCompiler.cmake)
 
+
+
+#------------------------------------------------------------
+
+# 3rdparty
+# 编译第三方库
+add_subdirectory(3rdparty)
+
+# data
+# 编译或处理数据
+add_subdirectory(data)
+
+# platforms
+# 编译平台文件
+add_subdirectory(platforms)
+
+# modules
+# 编译模块文件
+add_subdirectory(modules)
+
+# doc
+# 编译或处理文档
+add_subdirectory(doc)
+
+# test
+# 编译或处理测试模块
+add_subdirectory(test)
 
 # 输出检测、配置结果
 # ----------------------------------------------------------------------------
@@ -139,6 +176,11 @@ else()
 endif()
 status("    Precompiled headers:"     PCHSupport_FOUND AND ENABLE_PRECOMPILED_HEADERS THEN YES ELSE NO)
 
+#======================== The Third Part ============================
+status("")
+status(" third part:")
+status("    Lua"      BUILD_LUA       THEN "Build lua(ver ${LUA_VERSION_STRING})"               ELSE "${LUA_LIBRARY} (ver ${LUA_VERSION_STRING})" )
+
 # ========================== Nebula modules ==========================
 status("")
 status("  Nebula modules:")
@@ -166,25 +208,6 @@ status("    Disabled:"               NEBULA_MODULES_DISABLED_USER  THEN ${NEBULA
 status("    Disabled by dependency:" NEBULA_MODULES_DISABLED_AUTO  THEN ${NEBULA_MODULES_DISABLED_AUTO_ST}  ELSE "-")
 status("    Unavailable:"            NEBULA_MODULES_DISABLED_FORCE THEN ${NEBULA_MODULES_DISABLED_FORCE_ST} ELSE "-")
 
-# ========================== Android details ==========================
-if(ANDROID)
-  status("")
-  status("  Android: ")
-  status("    Android ABI:" ${ANDROID_ABI})
-  status("    STL type:" ${ANDROID_STL})
-  status("    Native API level:" android-${ANDROID_NATIVE_API_LEVEL})
-  android_get_compatible_target(android_sdk_target_status ${ANDROID_NATIVE_API_LEVEL} ${ANDROID_SDK_TARGET} 11)
-  status("    SDK target:" "${android_sdk_target_status}")
-  if(BUILD_WITH_ANDROID_NDK)
-    status("    Android NDK:" "${ANDROID_NDK} (toolchain: ${ANDROID_TOOLCHAIN_NAME})")
-  elseif(BUILD_WITH_STANDALONE_TOOLCHAIN)
-    status("    Android toolchain:" "${ANDROID_STANDALONE_TOOLCHAIN}")
-  endif()
-  status("    android tool:"  ANDROID_EXECUTABLE  THEN "${ANDROID_EXECUTABLE} (${ANDROID_TOOLS_Pkg_Desc})" ELSE NO)
-  status("    Google Play package:" BUILD_ANDROID_PACKAGE                                         THEN YES ELSE NO)
-  status("    Android examples:"    BUILD_ANDROID_EXAMPLES AND CAN_BUILD_ANDROID_PROJECTS         THEN YES ELSE NO)
-endif()
-
 # ================== Windows RT features ==================
 if(WIN32)
 status("")
@@ -194,106 +217,6 @@ status("")
       status("    Visual Studio 2012:" ${VISUAL_STUDIO_PATH})
     endif()
 endif(WIN32)
-
-# ========================== Other third-party libraries ==========================
-status("")
-status("  Other third-party libraries:")
-
-if(WITH_IPP AND IPP_FOUND)
-  status("    Use IPP:" "${IPP_LATEST_VERSION_STR} [${IPP_LATEST_VERSION_MAJOR}.${IPP_LATEST_VERSION_MINOR}.${IPP_LATEST_VERSION_BUILD}]")
-  status("         at:" "${IPP_ROOT_DIR}")
-else()
-  status("    Use IPP:"   WITH_IPP AND NOT IPP_FOUND THEN "IPP not found" ELSE NO)
-endif()
-
-status("    Use Eigen:"      HAVE_EIGEN       THEN "YES (ver ${EIGEN_WORLD_VERSION}.${EIGEN_MAJOR_VERSION}.${EIGEN_MINOR_VERSION})" ELSE NO)
-status("    Use TBB:"        HAVE_TBB         THEN "YES (ver ${TBB_VERSION_MAJOR}.${TBB_VERSION_MINOR} interface ${TBB_INTERFACE_VERSION})" ELSE NO)
-status("    Use OpenMP:"     HAVE_OPENMP      THEN YES ELSE NO)
-status("    Use GCD"         HAVE_GCD         THEN YES ELSE NO)
-status("    Use Concurrency" HAVE_CONCURRENCY THEN YES ELSE NO)
-status("    Use C=:"         HAVE_CSTRIPES    THEN YES ELSE NO)
-status("    Use Cuda:"       HAVE_CUDA        THEN "YES (ver ${CUDA_VERSION_STRING})" ELSE NO)
-status("    Use OpenCL:"     HAVE_OPENCL      THEN YES ELSE NO)
-
-if(HAVE_CUDA)
-  status("")
-  status("  NVIDIA CUDA")
-
-  status("    Use CUFFT:"            HAVE_CUFFT   THEN YES ELSE NO)
-  status("    Use CUBLAS:"           HAVE_CUBLAS  THEN YES ELSE NO)
-  status("    USE NVCUVID:"          HAVE_NVCUVID THEN YES ELSE NO)
-  status("    NVIDIA GPU arch:"      ${NEBULA_CUDA_ARCH_BIN})
-  status("    NVIDIA PTX archs:"     ${NEBULA_CUDA_ARCH_PTX})
-  status("    Use fast math:"        CUDA_FAST_MATH THEN YES ELSE NO)
-endif()
-
-if(HAVE_OPENCL)
-  status("")
-  status("  OpenCL:")
-  if(HAVE_OPENCL_STATIC)
-    set(__opencl_ver "static")
-  else()
-    set(__opencl_ver "dynamic")
-  endif()
-  status("    Version:"       ${__opencl_ver})
-  if(OPENCL_INCLUDE_DIR)
-    status("    Include path:"       ${OPENCL_INCLUDE_DIRS})
-  endif()
-  if(OPENCL_LIBRARIES)
-    set(__libs "")
-    foreach(l ${OPENCL_LIBRARIES})
-      if(TARGET ${l})
-        get_target_property(p ${l} LOCATION)
-        if(p MATCHES NOTFOUND)
-          list(APPEND __libs "${l}")
-        else()
-          list(APPEND __libs "${p}")
-        endif()
-      else()
-        list(APPEND __libs "${l}")
-      endif()
-    endforeach()
-    status("    libraries:"          ${__libs})
-  endif()
-  status("    Use AMD FFT:"          HAVE_CLAMDFFT  THEN YES ELSE NO)
-  status("    Use AMD BLAS:"         HAVE_CLAMDBLAS THEN YES ELSE NO)
-endif()
-
-# ========================== python ==========================
-status("")
-status("  Python:")
-status("    Interpreter:"     PYTHON_EXECUTABLE   THEN "${PYTHON_EXECUTABLE} (ver ${PYTHON_VERSION_FULL})"         ELSE NO)
-if(BUILD_opencv_python)
-  if(PYTHONLIBS_VERSION_STRING)
-    status("    Libraries:"   HAVE_opencv_python  THEN  "${PYTHON_LIBRARIES} (ver ${PYTHONLIBS_VERSION_STRING})"   ELSE NO)
-  else()
-    status("    Libraries:"   HAVE_opencv_python  THEN  ${PYTHON_LIBRARIES}                                        ELSE NO)
-  endif()
-  status("    numpy:"         PYTHON_USE_NUMPY    THEN "${PYTHON_NUMPY_INCLUDE_DIR} (ver ${PYTHON_NUMPY_VERSION})" ELSE "NO (Python wrappers can not be generated)")
-  status("    packages path:" PYTHON_EXECUTABLE   THEN "${PYTHON_PACKAGES_PATH}"                                   ELSE "-")
-endif()
-
-# ========================== java ==========================
-status("")
-status("  Java:")
-status("    ant:"           ANT_EXECUTABLE      THEN "${ANT_EXECUTABLE} (ver ${ANT_VERSION})"                    ELSE NO)
-if(NOT ANDROID)
-  status("    JNI:"         JNI_INCLUDE_DIRS    THEN "${JNI_INCLUDE_DIRS}"                                       ELSE NO)
-endif()
-status("    Java tests:"    BUILD_TESTS AND (CAN_BUILD_ANDROID_PROJECTS OR HAVE_opencv_java)            THEN YES ELSE NO)
-
-# ========================== documentation ==========================
-if(BUILD_DOCS)
-  status("")
-  status("  Documentation:")
-  if(HAVE_SPHINX)
-    status("    Build Documentation:" PDFLATEX_COMPILER      THEN YES ELSE "YES (only HTML and without math expressions)")
-  else()
-    status("    Build Documentation:" NO)
-  endif()
-  status("    Sphinx:"              HAVE_SPHINX              THEN "${SPHINX_BUILD} (ver ${SPHINX_VERSION})" ELSE NO)
-  status("    PdfLaTeX compiler:"   PDFLATEX_COMPILER        THEN "${PDFLATEX_COMPILER}" ELSE NO)
-endif()
 
 # ========================== samples and tests ==========================
 status("")
@@ -306,11 +229,11 @@ status("    C/C++ Examples:"    BUILD_EXAMPLES                       THEN YES EL
 status("")
 status("  Install path:" "${CMAKE_INSTALL_PREFIX}")
 status("")
-status("  cvconfig.h is in:" "${NEBULA_CONFIG_FILE_INCLUDE_DIR}")
+status("  nebulaconfig.h is in:" "${NEBULA_CONFIG_FILE_INCLUDE_DIR}")
 status("-----------------------------------------------------------------")
 status("")
 
-ocv_finalize_status()
+nebula_finalize_status()
 
 # ----------------------------------------------------------------------------
 # Warn in the case of in-source build
