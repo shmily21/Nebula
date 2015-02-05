@@ -71,8 +71,10 @@ if(NOT CMAKE_SIZEOF_VOID_P GREATER 0)
 endif()
 
 #
+# OPTION SELECT
 #------------------------------------------------------------
-NEBULA_OPTION(CMAKE_VERBOSE "Verbose Mode" OFF)
+NEBULA_OPTION(CMAKE_VERBOSE                 "Verbose Mode"          ON )
+NEBULA_OPTION(CMAKE_VERBOSE_MAKEFILE        "Verbose Makefile"      ON )
 
 # THE THIRD PART LIBRARIES
 # 编译第三方库选项
@@ -88,9 +90,46 @@ include(cmake/NebulaModule.cmake)
 # 检测C++编译器
 include(cmake/NebulaDetectCXXCompiler.cmake)
 
-
+#------------------------------------------------------------
+# 路径设置
+#
+#设置第三方库输出路径
+set(3P_LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App/bin2" CACHE PATH "Output directory for the third part library" )
+#设置模块输出路径
+set(MODULE_LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App/bin" CACHE PATH "Output directory for library file")
+#设置二进制工具文件输出路径
+set(TOOL_BINARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App/tool" CACHE PATH "Output directory for binary" )
+#配置文件输出路径
+set(CONFIG_FILE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App/config" CACHE PATH "Config File Output directory")
+#脚本文件输出路径
+set(SCRIPT_FILE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App/script" CACHE PATH "Script File Output directory")
+#数据文件输出路径
+set(DATA_FILE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App/data" CACHE PATH "Data File Output directory")
+#库输出路径
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App/bin" CACHE PATH "Output directory for library" )
+#PROJECT_BINARY_DIR
+#可执行文件输出路径
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/App" CACHE PATH "Output directory for application")
 
 #------------------------------------------------------------
+
+# TEST
+#
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckCSourceCompiles)
+include(CheckTypeSize)
+include(CheckCCompilerFlag)
+
+set(NEBULA_COMPILER_STD_FLAG_GUN89 "-std=gnu89" CACHE STRING "Compile Standard,useage:-std=gnu89")
+check_c_compiler_flag(${NEBULA_COMPILER_STD_FLAG_GUN89} HAVE_COMPILER_STD_FLAG_GUN89_SUPPORT)
+
+set(NEBULA_COMPILER_STD_FLAG_GUN99 "-std=gnu99" CACHE STRING "Compile Standard,useage:-std=gnu99")
+check_c_compiler_flag(${NEBULA_COMPILER_STD_FLAG_GUN99} HAVE_COMPILER_STD_FLAG_GUN99_SUPPORT)
+
+set(NEBULA_COMPILER_STD_FLAG_CPP11 "-std=c++11" CACHE STRING "Compile Standard,useage:-std=c++11")
+check_c_compiler_flag(${NEBULA_COMPILER_STD_FLAG_CPP11} HAVE_COMPILER_STD_FLAG_CPP11_SUPPORT)
+#
 
 # 3rdparty
 # 编译第三方库

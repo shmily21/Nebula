@@ -11,18 +11,25 @@ set(NEBULA_LUA_LIBRARY lua)
 
 #project(${NEBULA_LUA_LIBRARY} C)
 
-include(CheckFunctionExists)
 include(CheckIncludeFile)
-include(CheckCSourceCompiles)
-include(CheckTypeSize)
+check_include_file(readline/readline.h LUA_HAVE_READLINE_READLINE_H)
+
+
 
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
 
+#
+add_definitions(-DLUA_COMPAT_5_2)
+
 if(WIN32 OR WIN64)
-    add_definitions(-DLUA_COMPAT_5_2)
+    #add_definitions(-DLUA_USE_WINDOWS)
+elseif(UNIX)
+    add_definitions(-DLUA_USE_LINUX)
+else()
+
 endif()
 
 #nebula_include_directories("${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
@@ -31,18 +38,29 @@ set(BUILD_TYPE_LUA "SHARED")
 
 if(BUILD_STATIC_LUA)
     set(BUILD_TYPE_LUA  "STATIC")
+else()
+    if(WIN32 OR WIN64)
+        add_definitions(-DLUA_BUILD_AS_DLL)
+    endif(WIN32 OR WIN64)
 endif(BUILD_STATIC_LUA)
 
+
 add_library(${NEBULA_LUA_LIBRARY} ${BUILD_TYPE_LUA} ${NEBULA_LUA_SOURCE_CODE})
-set_target_properties(${NEBULA_LUA_LIBRARY} PROPERTIES DEFINE_SYMBOL -DLUA_BUILD_AS_DLL)
+#set_target_properties(${NEBULA_LUA_LIBRARY} PROPERTIES DEFINE_SYMBOL -DLUA_CORE)
 
 if(UNIX)
     if(CMAKE_COMPILER_IS_GUNCXX)
         set(CMAKE_C_FLAG "${CMAKE_C_FLAGS} -fPIC")
     endif(CMAKE_COMPILER_IS_GUNCXX)
+elseif(WIN32)
+    add_definitions(-D_WIN32)
 endif(UNIX)
 
-nebula_warnings_disable(CMAKE_C_FLAGS -Wextra)
+if(HAVE_COMPILER_STD_FLAG_GUN99_SUPPORT)
+    set(CMAKE_C_FLAG "${CMAKE_C_FLAGS} ${NEBULA_COMPILER_STD_FLAG_GUN99}")
+endif(HAVE_COMPILER_STD_FLAG_GUN99_SUPPORT)
+
+nebula_warnings_disable(CMAKE_C_FLAGS -Wall -Wextra)
 
 set_target_properties(${NEBULA_LUA_LIBRARY} PROPERTIES
         OUTPUT_NAME ${NEBULA_LUA_LIBRARY}
