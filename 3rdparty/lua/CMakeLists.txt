@@ -41,12 +41,13 @@ if(BUILD_STATIC_LUA)
 else()
     if(WIN32 OR WIN64)
         add_definitions(-DLUA_BUILD_AS_DLL)
+        #add_definitions(-DLUA_CORE)
     endif(WIN32 OR WIN64)
 endif(BUILD_STATIC_LUA)
 
 
 add_library(${NEBULA_LUA_LIBRARY} ${BUILD_TYPE_LUA} ${NEBULA_LUA_SOURCE_CODE})
-#set_target_properties(${NEBULA_LUA_LIBRARY} PROPERTIES DEFINE_SYMBOL -DLUA_CORE)
+set_target_properties(${NEBULA_LUA_LIBRARY} PROPERTIES DEFINE_SYMBOL NEBULA_LUA_EXPORT)
 
 if(UNIX)
     if(CMAKE_COMPILER_IS_GUNCXX)
