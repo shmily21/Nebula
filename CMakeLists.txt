@@ -127,8 +127,13 @@ check_c_compiler_flag(${NEBULA_COMPILER_STD_FLAG_GUN89} HAVE_COMPILER_STD_FLAG_G
 set(NEBULA_COMPILER_STD_FLAG_GUN99 "-std=gnu99" CACHE STRING "Compile Standard,useage:-std=gnu99")
 check_c_compiler_flag(${NEBULA_COMPILER_STD_FLAG_GUN99} HAVE_COMPILER_STD_FLAG_GUN99_SUPPORT)
 
+set(NEBULA_COMPILER_STD_FLAG_CPP0X "-std=c++0x" CACHE STRING "Compile Standard,useage:-std=c++0x")
+check_c_compiler_flag(${NEBULA_COMPILER_STD_FLAG_CPP0X} HAVE_COMPILER_STD_FLAG_CPP0X_SUPPORT)
+
 set(NEBULA_COMPILER_STD_FLAG_CPP11 "-std=c++11" CACHE STRING "Compile Standard,useage:-std=c++11")
 check_c_compiler_flag(${NEBULA_COMPILER_STD_FLAG_CPP11} HAVE_COMPILER_STD_FLAG_CPP11_SUPPORT)
+
+
 #
 
 # 3rdparty
