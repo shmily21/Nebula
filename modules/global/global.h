@@ -1,13 +1,13 @@
 /*
 ***************************************************************************************************
-// FileName	    :NebulaType.h
+// FileName     :global.h
 //
-// Brief        :Common Type Or Code Defined File
+// Brief        :Global Header
 //
 // Author       :WangBin
 //
 // Description  :
-//                  Common Type Or Code Defined Here.
+//                  Global Header.
 //
 //
 // CopyRight    : WangBin.
@@ -16,8 +16,8 @@
 ***************************************************************************************************
 */
 
-#ifndef __WANGBIN_NEBULA_MODULES_GLOBAL_INCLUDE_NEBULATYPE_H__
-#define __WANGBIN_NEBULA_MODULES_GLOBAL_INCLUDE_NEBULATYPE_H__
+#ifndef __WANGBIN_NEBULA_MODULES_GLOBAL_GLOBAL_H__
+#define __WANGBIN_NEBULA_MODULES_GLOBAL_GLOBAL_H__
 
 /*
 * For Microsoft Compiler In Windows.
@@ -26,6 +26,18 @@
 #   pragma once
 #endif // if defined(_MSC_VER) && _MSC_VER > 1000
 
+/*
+* Use Namespace: Nebula
+*/
+#define __NEBULA_GLOBAL_USE_NAMESPACE
 
+/*
+* Use Exceptions
+*/
+#define __NEBULA_USE_EXCEPTIONS
 
-#endif // __WANGBIN_NEBULA_MODULES_GLOBAL_INCLUDE_NEBULATYPE_H__
+#include "include/nebulaconfig.h"
+#include "include/nebulatype.h"
+#include "include/nebulabase.h"
+
+#endif // __WANGBIN_NEBULA_MODULES_GLOBAL_GLOBAL_H__
