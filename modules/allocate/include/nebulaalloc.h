@@ -168,7 +168,8 @@ protected:
 
     static void* refill(size_t n);
 
-    static char* chunk_alloc(size_t __size,int& __nobjs);
+    static char* chunk_alloc(__nebula_in size_t __size,
+                            __nebula_ou int& __nobjs);
 
     static char* start_free;
     static char* end_free;
@@ -257,14 +258,32 @@ void* __nebula_default_alloc_template<threads,inst>::refill(size_t __bytes)
 }
 
 template<bool threads,int inst>
-char* __nebula_default_alloc_template<threads,inst>::chunk_alloc(size_t __bytes,int* __nobjs)
+char* __nebula_default_alloc_template<threads,inst>::chunk_alloc(size_t __bytes,int& __nobjs)
 {
     char* result;
     size_t total_bytes(__bytes*__nobjs);
     size_t bytes_left(end_free - start_free);
     if(bytes_left >= total_bytes)
     {
-
+        result=start_free;
+        start_free+=total_bytes;
+        return result;
+    }
+    else if(bytes_left >= __bytes)
+    {
+        __nobjs=bytes_left/__bytes;
+        total_bytes=__bytes*__nobjs;
+        result=start_free;
+        start_free+=total_bytes;
+        return result;
+    }
+    else
+    {
+        size_t bytes_to_get=total_bytes*2+ROUND_UP(heap_size>>4);
+        if(bytes_left > 0)
+        {
+            obj* volatile* user_free_list=free_list+FREELIST_INDEX(bytes_left);
+        }
     }
 }
 
