@@ -163,13 +163,17 @@ protected:
     };
 
     static obj* volatile    free_list[__NFREELISTS];
+
+    static size_t ROUND_UP(size_t __bytes)
+    { return (((__bytes) + __ALIGN -1) & ~(__ALIGN-1)); }
+
     static size_t FREELIST_INDEX(size_t __bytes)
     { return (((__bytes) + __ALIGN-1) /__ALIGN -1);}
 
     static void* refill(size_t n);
 
     static char* chunk_alloc(__nebula_in size_t __size,
-                            __nebula_ou int& __nobjs);
+                            __nebula_out int& __nobjs);
 
     static char* start_free;
     static char* end_free;
@@ -283,9 +287,36 @@ char* __nebula_default_alloc_template<threads,inst>::chunk_alloc(size_t __bytes,
         if(bytes_left > 0)
         {
             obj* volatile* user_free_list=free_list+FREELIST_INDEX(bytes_left);
+            ((obj*)start_free)->free_list_link=*user_free_list;
+            *user_free_list=(obj*)start_free;
         }
+        start_free=(char*)malloc(bytes_to_get);
+        if(0==start_free)
+        {
+            int i;
+            obj *volatile* user_free_list,*p;
+            for(i=__bytes; i <= __MAX_BYTES; i += __ALIGN)
+            {
+                user_free_list=free_list+FREELIST_INDEX(i);
+                p=*user_free_list;
+                if(0!=p)
+                {
+                    *user_free_list=p->free_list_link;
+                    start_free=(char*)p;
+                    end_free=start_free+i;
+                    return (chunk_alloc(__bytes,__nobjs));
+                }
+            }
+            end_free=0;
+            start_free=(char*)__NEBULA::nebula_malloc_alloc::allocate(bytes_to_get);
+        }
+        heap_size+=bytes_to_get;
+        end_free=start_free+bytes_to_get;
+        return (chunk_alloc(__bytes,__nobjs));
     }
 }
+
+
 
 __NEBULA_END_NAMESPACE      //End Namespace
 
