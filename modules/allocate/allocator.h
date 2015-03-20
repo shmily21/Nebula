@@ -29,8 +29,7 @@
 //#include "./../global/global.h"
 #include "include/preheader.h"
 #include "include/nebulaconstruct.h"
-#include "include/malloc_allocate.h"
-#include "include/pool_allocate.h"
+#include "include/nebulaalloc.h"
 
 
 #endif //__WANGBIN_NEBULA_MODULES_ALLOCATE_ALLOCATOR_H__

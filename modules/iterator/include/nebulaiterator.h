@@ -35,32 +35,16 @@ __NEBULA_BEGIN_NAMESPACE
 *以下类均作为标记使用，分别代表 只读，只写，写入型，双向移动和可随机访问型迭代器
 */
 
-struct __nebula_input_iterator_tag
+struct __nebula_input_iterator_tag {};
+struct __nebula_output_iterator_tag {};
+struct __nebula_forward_iterator_tag:public __nebula_input_iterator_tag {};
+struct __nebula_bidirectional_iterator_tag:public __nebula_forward_iterator_tag {};
+struct __nebula_random_access_iterator_tag:public __nebula_bidirectional_iterator_tag {};
+
+template <class T,class Distance>
+struct __nebula_input_iterator
 {
-
-};
-
-struct __nebula_output_iterator_tag
-{
-
-};
-
-struct __nebula_forward_iterator_tag
-        :public __nebula_input_iterator_tag
-{
-
-};
-
-struct __nebula_bidirectional_iterator_tag
-        :public __nebula_forward_iterator_tag
-{
-
-};
-
-struct __nebula_random_access_iterator_tag
-        :public __nebula_bidirectional_iterator_tag
-{
-
+    //typedef __NEBULA::__nebula_input_iterator_tag
 };
 
 /*
