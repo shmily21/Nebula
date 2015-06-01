@@ -39,5 +39,7 @@
 #include "include/nebulaconfig.h"
 #include "include/nebulatype.h"
 #include "include/nebulabase.h"
-
+#include "include/appletst.h"
+#include "include/runtimest.h"
+#include "include/nebulaerror.h"
 #endif // __WANGBIN_NEBULA_MODULES_GLOBAL_GLOBAL_H__

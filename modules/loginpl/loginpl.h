@@ -1,13 +1,13 @@
 /*
 ***************************************************************************************************
-// FileName	    :NebulaType.h
+// FileName     :
 //
-// Brief        :Common Type Or Code Defined File
+// Brief        :
 //
 // Author       :WangBin
 //
 // Description  :
-//                  Common Type Or Code Defined Here.
+//
 //
 //
 // CopyRight    : WangBin.
@@ -16,8 +16,8 @@
 ***************************************************************************************************
 */
 
-#ifndef __WANGBIN_NEBULA_MODULES_GLOBAL_INCLUDE_NEBULATYPE_H__
-#define __WANGBIN_NEBULA_MODULES_GLOBAL_INCLUDE_NEBULATYPE_H__
+#ifndef __WANGBIN_NEBULA_MODULES_LOGINPL_LOGINPL_H__
+#define __WANGBIN_NEBULA_MODULES_LOGINPL_LOGINPL_H__
 
 /*
 * For Microsoft Compiler In Windows.
@@ -26,9 +26,5 @@
 #   pragma once
 #endif // if defined(_MSC_VER) && _MSC_VER > 1000
 
-#define __nebula_out        // for output parameter
-#define __nebula_in         // for input parameter
 
-#define __nubule_auto       // such as main,winmain hinstance ...
-
-#endif // __WANGBIN_NEBULA_MODULES_GLOBAL_INCLUDE_NEBULATYPE_H__
+#endif /* __WANGBIN_NEBULA_MODULES_LOGINPL_LOGINPL_H__ */

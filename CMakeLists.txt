@@ -158,7 +158,7 @@ add_subdirectory(doc)
 
 # test
 # 编译或处理测试模块
-add_subdirectory(test)
+#add_subdirectory(test)
 
 # 输出检测、配置结果
 # ----------------------------------------------------------------------------
