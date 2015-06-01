@@ -27,6 +27,10 @@
 #endif // if defined(_MSC_VER) && _MSC_VER > 1000
 
 #ifdef WIN32
+#ifdef __NEBULA_GLOBAL_USE_SOCKET
+#   include <WinSock2.h>
+#   include <WS2tcpip.h>
+#endif
 #include <Windows.h>
 #include <WinBase.h>
 #endif

@@ -32,6 +32,11 @@
 #define __NEBULA_GLOBAL_USE_NAMESPACE
 
 /*
+* Use Socket
+*/
+#define __NEBULA_GLOBAL_USE_SOCKET
+
+/*
 * Use Exceptions
 */
 #define __NEBULA_USE_EXCEPTIONS
@@ -42,4 +47,4 @@
 #include "include/appletst.h"
 #include "include/runtimest.h"
 #include "include/nebulaerror.h"
-#endif // __WANGBIN_NEBULA_MODULES_GLOBAL_GLOBAL_H__
+#endif /* __WANGBIN_NEBULA_MODULES_GLOBAL_GLOBAL_H__ */
