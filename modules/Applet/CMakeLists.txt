@@ -34,4 +34,4 @@ if(WIN32 OR WIN64)
     # 指定程序的入口函数
     #set_target_properties(${NEBULA_APPLET_APPLICATION} PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
 
-endif(WIN32)
+endif(WIN32 OR WIN64)

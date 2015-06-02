@@ -1,5 +1,8 @@
 set(the_description "The Server Application")
 # 添加源代码文件
+file(GLOB_RECURSE SOURCE_HEADER
+    include/*.h *h)
+
 aux_source_directory(src NEBULA_SERVER_SOURCE_CODE)
 # 设置目标名称
 set(NEBULA_SERVER_APPLICATION server)
@@ -14,8 +17,11 @@ endif(UNIX)
 #添加包含路径
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+source_group("Header Files" FILES ${SOURCE_HEADER})
+source_group("Source Files" FILES ${NEBULA_SERVER_SOURCE_CODE})
+
 # 编译目标
-add_executable(${NEBULA_SERVER_APPLICATION}  ${NEBULA_SERVER_SOURCE_CODE})
+add_executable(${NEBULA_SERVER_APPLICATION}  ${NEBULA_SERVER_SOURCE_CODE} ${SOURCE_HEADER})
 
 # 编译器标准
 if(HAVE_COMPILER_STD_FLAG_GUN99_SUPPORT)
@@ -34,4 +40,4 @@ if(WIN32 OR WIN64)
     # 指定程序的入口函数
     #set_target_properties(${NEBULA_SERVER_APPLICATION} PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
 
-endif(WIN32)
+endif(WIN32 OR WIN64)
