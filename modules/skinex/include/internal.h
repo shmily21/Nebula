@@ -74,21 +74,69 @@ typedef struct tagScrollBar
     DWORD       style;                      /* 窗口Style */
     SCROLLINFO  Horz;                       /* 水平滚动条 */
     SCROLLINFO  Vert;                       /* 垂直滚动条 */
-    WINPROC     pfnOldProc;                 /* 原窗口处理函数 */
+    WNDPROC     pfnOldProc;                 /* 原窗口处理函数 */
     BOOL        fLeftScrollBar;             /* 滚动条左侧Style */
     BOOL        fPreventStyleChange;        /* 不允许更改滚动条样式 */
-    BOOL        fMouseTracking;             /*  */
-    BOOL        fTracking;                  /*  */
-    BOOL        fTrackVert;                 /*  */
-    BOOL        fRichEdit;                  /*  */
-	int         nTrackCode;                 /*  */
-	int         nTrackPos;                  /*  */
-	int         nOffsetPoint;               /*  */
-	UINT        nScrollTimerMsg;            /*  */
-	UINT        nLastCode;                  /*  */
-	BOOL        fLastVert;                  /*  */
-	HBITMAP     hBmp;                       /*  */
-}
+    BOOL        fMouseTracking;             /* 鼠标滚动 */
+    BOOL        fTracking;                  /* 滚动 */
+    BOOL        fTrackVert;                 /* 垂直滚动标记 */
+    BOOL        fRichEdit;                  /* 富文本编辑控件 */
+	int         nTrackCode;                 /* 点击测试代码 */
+	int         nTrackPos;                  /* 点击测试位置 */
+	int         nOffsetPoint;               /* 鼠标点击位置偏移量 */
+	UINT        nScrollTimerMsg;            /* 消息WPARAM参数 */
+	UINT        nLastCode;                  /* 上次点击测试代码 */
+	BOOL        fLastVert;                  /* 上次点击测试为垂直滚动 */
+	HBITMAP     hBmp;                       /* 关联位图 */
+}SCROLLBAR,*LPSCROLLBAR;
+
+/* 用于滚动条计算的数据结构 */
+typedef struct tagScrollBarCalc
+{
+    INT     pixelLeft;
+    INT     pixelTop;
+    INT     pixelRight;
+    INT     pixelBottom;
+    union
+    {
+        INT     pixelUpArrow;
+        INT     pixelLeftArrow;
+    };
+    union 
+    {
+        INT     pixelDownArrow;
+        INT     pixelRightArrow;
+    };
+    union
+    {
+        INT     pixelThumbTop;
+        INT     pixelThumbLeft;
+    };
+    union
+    {
+        INT     pixelThumbBottom;
+        INT     pixelThumbRight;
+    };
+
+}SCROLLBARCALC,*LPSCROLLBARCALC;
+
+LPSCROLLBAR SkinEx_GetScrollBar(HWND hwnd);
+
+BOOL SkinEx_SetScrollBarParams(LPSCROLLBAR psi,SCROLLINFO si,BOOL* pfScroll,INT* plres,BOOL bOldPos);
+
+BOOL SkinEx_IsScrollInfoActive(LPSCROLLINFO lpsi);
+
+BOOL SkinEx_GetSizeBoxRect(LPSCROLLBAR psb,LPRECT lprc);
+
+BOOL SkinEx_GetScrollBarRect(LPSCROLLBAR psb,BOOL fVert,LPRECT lprc);
+
+VOID SkinEx_ScrollBarCalc(LPSCROLLBAR psb,LPSCROLLBARCALC lprc,BOOL fVert);
+
+BOOL SkinEx_GetThumbRect(LPSCROLLBAR psb,LPRECT lprc,BOOL fVert);
+
+BOOL SkinEx_GetGrooveRect(LPSCROLLBAR psb,LPRECT lprc,BOOL fVert);
+
+
 
 #endif /* WIN32 */
 

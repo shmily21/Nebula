@@ -12,9 +12,11 @@ if(UNIX)
 elseif(WIN32)
     add_definitions(-D_WIN32)
     add_definitions(-DNEBULA_FOR_WINDOWS)
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif(UNIX)
 
 #添加包含路径
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 source_group("Header Files" FILES ${SOURCE_HEADER})
