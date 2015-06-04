@@ -32,7 +32,7 @@
 #include <Windows.h>
 #include <WinBase.h>
 #include <Windowsx.h>
-#include <Commctrl.h>
+#include <CommCtrl.h>
 
 // 滚动条最小 Thumb 尺寸
 #define SCROLLBAR_MINTHUMB_SIZE         10
@@ -67,6 +67,10 @@
     ::SendMessage((HWND)(hwnd),(vert)?WM_VSCROLL:WM_HSCROLL,MAKEWPARAM((cmd),(pos)),0)
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct tagScrollBar
 {
     HWND        hwnd;                       /* 窗口句柄 */
@@ -81,13 +85,13 @@ typedef struct tagScrollBar
     BOOL        fTracking;                  /* 滚动 */
     BOOL        fTrackVert;                 /* 垂直滚动标记 */
     BOOL        fRichEdit;                  /* 富文本编辑控件 */
-	int         nTrackCode;                 /* 点击测试代码 */
-	int         nTrackPos;                  /* 点击测试位置 */
-	int         nOffsetPoint;               /* 鼠标点击位置偏移量 */
-	UINT        nScrollTimerMsg;            /* 消息WPARAM参数 */
-	UINT        nLastCode;                  /* 上次点击测试代码 */
-	BOOL        fLastVert;                  /* 上次点击测试为垂直滚动 */
-	HBITMAP     hBmp;                       /* 关联位图 */
+    int         nTrackCode;                 /* 点击测试代码 */
+    int         nTrackPos;                  /* 点击测试位置 */
+    int         nOffsetPoint;               /* 鼠标点击位置偏移量 */
+    UINT        nScrollTimerMsg;            /* 消息WPARAM参数 */
+    UINT        nLastCode;                  /* 上次点击测试代码 */
+    BOOL        fLastVert;                  /* 上次点击测试为垂直滚动 */
+    HBITMAP     hBmp;                       /* 关联位图 */
 }SCROLLBAR,*LPSCROLLBAR;
 
 /* 用于滚动条计算的数据结构 */
@@ -102,7 +106,7 @@ typedef struct tagScrollBarCalc
         INT     pixelUpArrow;
         INT     pixelLeftArrow;
     };
-    union 
+    union
     {
         INT     pixelDownArrow;
         INT     pixelRightArrow;
@@ -122,7 +126,7 @@ typedef struct tagScrollBarCalc
 
 LPSCROLLBAR SkinEx_GetScrollBar(HWND hwnd);
 
-BOOL SkinEx_SetScrollBarParams(LPSCROLLBAR psi,SCROLLINFO si,BOOL* pfScroll,INT* plres,BOOL bOldPos);
+BOOL SkinEx_SetScrollBarParams(LPSCROLLINFO psi,SCROLLINFO si,BOOL* pfScroll,INT* plres,BOOL bOldPos);
 
 BOOL SkinEx_IsScrollInfoActive(LPSCROLLINFO lpsi);
 
@@ -138,6 +142,62 @@ BOOL SkinEx_GetGrooveRect(LPSCROLLBAR psb,LPRECT lprc,BOOL fVert);
 
 
 
+VOID SkinEx_DrawScrollBar(LPSCROLLBAR psb,HDC hDC,BOOL fVert);
+
+BOOL SkinEx_DrawGroove(LPSCROLLBAR psb,HDC hDC,LPRECT lprc,BOOL fVert);
+
+VOID SkinEx_DrawThumb(LPSCROLLBAR psb,HDC hDC,BOOL fVert);
+
+BOOL SkinEx_DrawArrow(LPSCROLLBAR psb,HDC hDC,BOOL fVert,INT nArrow,UINT uState);
+
+BOOL SkinEx_DrawSizeBox(LPSCROLLBAR psb,HDC hDC);
+
+VOID SkinEx_Track(LPSCROLLBAR psb,BOOL fVert,UINT nHit,POINT pt);
+
+BOOL SkinEx_TrackThumb(LPSCROLLBAR psb,BOOL fVert,POINT pt);
+
+BOOL SkinEx_HotTrack(LPSCROLLBAR psb,INT nHitCode,BOOL fVert,BOOL fMouseDown);
+
+UINT SkinEx_HitTest(LPSCROLLBAR psb,BOOL fVert,POINT pt);
+
+BOOL SkinEx_EnableArrows(LPSCROLLBAR psb,INT nBar,UINT nArrows);
+
+UINT SkinEx_GetDisableFlags(LPSCROLLBAR psb,BOOL fVert);
+
+UINT SkinEx_GetState(LPSCROLLBAR psb,BOOL fVert,UINT nHit);
+
+
+
+LRESULT SkinEx_OnStyleChanged(LPSCROLLBAR psb,INT nStyleType,LPSTYLESTRUCT lpStyleStruct);
+
+LRESULT SkinEx_OnNcHitTest(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam);
+
+LRESULT SkinEx_OnNcPaint(LPSCROLLBAR psb,WAPRAM wParam,LPARAM lParam);
+
+LRESULT SkinEx_OnNcCalcSize(LPSCROLLBAR psb,BOOL bClacValidRect,NCCALCSIZE_PARAMS* lpncsp);
+
+LRESULT SkinEx_OnNcMouseMove(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam);
+
+LRESULT SkinEx_OnNcLButtonDown(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam);
+
+LRESULT SkinEx_OnNcMouseLeave(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam);
+
+LRESULT SkinEx_OnMouseMove(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam);
+
+LRESULT SkinEx_OnLButtonUp(LPSCROLLBAR psb,WAPRAM wParam,LPARAM lParam);
+
+LRESULT SkinEx_OnTimer(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam);
+
+
+
+LRESULT CALLBACK SkinEx_Proc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+
+#ifdef __cplusplus
+}
+#endif
+
+
 #endif /* WIN32 */
 
 #endif /* __WANGBIN_NEBULA_MODULES_SKINEX_INCLUDE_INTERNAL_H__ */
+
