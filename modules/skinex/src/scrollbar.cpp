@@ -318,33 +318,282 @@ BOOL SkinEx_GetGrooveRect(LPSCROLLBAR psb,LPRECT lprc,BOOL fVert)
 *                                                           *
 \************************************************************/
 
-VOID SkinEx_DrawScrollBar(LPSCROLLBAR psb,HDC hDC,BOOL fVert)
-{
-
-}
-
 BOOL SkinEx_DrawGroove(LPSCROLLBAR psb,HDC hDC,LPRECT lprc,BOOL fVert)
 {
+    if(!hDC || !lprc || IsRectEmpty(lprc)) return FALSE;
 
-}
+    HDC hbmpDC=::CreateCompatibleDC(hDC);
+    HBITMAP hOldBmp=(HBITMAP)::SelectObject(hbmpDC,psb->hBmp);
 
-VOID SkinEx_DrawThumb(LPSCROLLBAR psb,HDC hDC,BOOL fVert)
-{
+    POINT       pt;
 
+    if(fVert)
+    {
+        pt=ptArray[0][4];
+    }
+    else
+    {
+        pt=ptArray[3][4];
+    }
+
+    INT nMode=::SetStretchBltMode(hDC,HALFTONE);
+    ::StretchBlt(hDC,lprc->left,lprc->top,lprc->right-lprc->left,lprc->bottom-lprc->top,hbmpDC,pt.x,pt.y,16,16,SRCCOPY);
+    ::SetStretchBltMode(hDC,nMode);
+    ::SelectObject(hbmpDC,hOldBmp);
+    ::DeleteDC(hbmpDC);
+    return TRUE;
 }
 
 BOOL SkinEx_DrawArrow(LPSCROLLBAR psb,HDC hDC,BOOL fVert,INT nArrow,UINT uState)
 {
+    RECT                rect;
+    RECT                rc;
+    SCROLLBARCALC       sbc;
+    HDC                 hMemDC;
+    HBITMAP             hOldBmp;
+    INT                 x;
+    INT                 y;
+    POINT               pt;
+
+    ::GetWindowRect(psb->hwnd,&rect);
+    SkinEx_ScrollBarCalc(psb,&sbc,fVert);
+
+    if(0==uState)
+        uState=SkinEx_GetState(psb,fVert,nArrow);
+}
+
+VOID SkinEx_DrawThumb(LPSCROLLBAR psb,HDC hDC,BOOL fVert)
+{
+    SCROLLBARCALC           sbc;
+    RECT                    rc;
+    RECT                    rect;
+    INT                     cx;
+    INT                     cy;
+    POINT                   pt;
+    POINT                   pt1;
+
+    UINT uState=SkinEx_GetState(psb,fVert,HITTEST_SCROLLBAR_THUMB);
+    SkinEx_ScrollBarCalc(psb,&sbc,fVert);
+    ::GetWindowRect(psb->hwnd,&rect);
+
+    if(sbc.pixelTop>=sbc.pixelBottom || sbc.pixelLeft>=sbc.pixelRight) return ;
+
+    if((sbc.pixelDownArrow - sbc.pixelUpArrow) < (sbc.pixelThumbBottom-sbc.pixelThumbTop) || SCROLLBAR_STATE_DISABLED==uSate )
+    {
+        SkinEx_GetGrooveRect(psb,&rc,fVert);
+        SkinEx_DrawGroove(psb,hDC,&rc,fVert);
+        return ;
+    }
+
+    if(sbc.pixelUpArrow<sbc.pixelThumbTop)
+    {
+        if(fVert)
+        {
+            ::SetRect(&rc,sbc.pixelLeft,sbc.pixelUpArrow,sbc.pixelRight,sbc.pixelThumbTop);
+        }
+        else
+        {
+            ::SetRect(&rc,sbc.pixelUpArrow,sbc.pixelTop,sbc.pixelThumbTop,sbc.pixelBottom);
+        }
+        ::OffsetRect(&rc,-rect.left,-rect.top);
+        SkinEx_DrawGroove(psb,hDC,&rc,fVert);
+    }
+
+    if(sbc.pixelThumbBottom<sbc.pixelDownArrow)
+    {
+        if(fVert)
+        {
+            ::SetRect(&rc,sbc.pixelLeft,sbc.pixelThumbBottom,sbc.pixelRight,sbc.pixelDownArrow);
+        }
+        else
+        {
+            ::SetRect(&rc,sbc.pixelThumbBottom,sbc.pixelTop,sbc.pixelDownArrow,sbc.pixelBottom);
+        }
+        ::OffsetRect(&rc,-rect.left,-rect.top);
+        SkinEx_DrawGroove(psb,hDC,&rc,fVert);
+    }
+
+    HDC hSrcDC=::CreateCompatibleDC(hDC);
+    HBITMAP hOldBmp=(HBITMAP)::SelectObject(hSrcDC,psb->hBmp);
+
+    SkinEx_GetThumbRect(psb,&rc,fVert);
+    
+    cx=rc.right-rc.left;
+    cy=rc.bottom-rc.top;
+    RECT rcMemDC;
+    ::SetRectEmpty(&rcMemDC);
+    ::SetRect(&rcMemDC,0,0,rc.right-rc.left,rc.bottom-rc.top);
+
+    HDC memDC=::CreateCompatibleDC(hDC);
+    HBITMAP hMemBitmap=::CreateCompatibleBitmap(hDC,cx,cy);
+    HBITMAP hOldBitmap=(HBITMAP)::SelectObject(memDC,hMemBitmap);
+    ::SetBkColor(memDC,0xffffff);
+    ::ExtTextOut(memDC,0x00,0x00,ETO_OPAQUE,&rcMemDC,NULL,0x00,NULL);
+
+    switch(uState)
+    {
+    case SCROLLBAR_STATE_NORMAL:
+        {
+            pt  = fVert ? ptArray[0][2] : ptArray[3][2];
+            pt1 = fVert ? ptArray[0][3] : ptArray[3][3];
+        }break;
+    case SCROLLBAR_STATE_HOTTRACKED:
+        {
+            pt  = fVert ? ptArray[1][2] : ptArray[4][2];
+            pt1 = fVert ? ptArray[1][3] : ptArray[4][3];
+        }break;
+    case SCROLLBAR_STATE_PRESSED:
+        {
+            pt  = fVert ? ptArray[2][2] : ptArray[5][2];
+            pt1 = fVert ? ptArray[2][3] : ptArray[5][3];
+        }break;
+    case SCROLLBAR_STATE_DISABLED:
+        {
+        }break;
+    DEFAULT_UNREACHABLE;
+    }
+
+    if(fVert)
+    {
+        for(INT i(4);i<cy-4;i+=8)
+        {
+            ::BitBlt(memDC,0,i,cx,8,hSrcDC,pt.x,pt.y+4,SRCCOPY);
+        }
+
+        ::BitBlt(memDC,0,0,cx,4,hSrcDC,pt.x,pt.y,SRCCOPY);
+        ::BitBlt(memDC,0,cy-4,cx,4,hSrcDC,pt.x,(pt.y+16)-4,SRCCOPY);
+
+        if(cy>16+8)
+        {
+            INT y=(cy-16)/2;
+            ::BitBlt(memDC,0,y,cx,16,hSrcDC,pt1.x,pt1.y,SRCCOPY);
+        }
+    }
+    else
+    {
+        for(INT i(4);i<cx-4;i+=8)
+        {
+            ::BitBlt(memDC,i,0,8,cy,hSrcDC,pt.x+4,pt.y,SRCCOPY);
+        }
+
+        ::BitBlt(memDC,0,0,4,cy,hSrcDC,pt.x,pt.y,SRCCOPY);
+        ::BitBlt(memDC,cx-4,0,4,cy,hSrcDC,(pt.x+16)-4,pt.y,SRCCOPY);
+
+        if(cx>16+8)
+        {
+            INT x=(cx-16)/2;
+            ::BitBlt(memDC,x,0,16,cy,hSrcDC,pt1.x,pt1.y,SRCCOPY);
+        }
+    }
+
+    ::BitBlt(hDC,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,memDC,0,0,SRCCOPY);
+
+    ::SelectObject(memDC,hOldBitmap);
+    ::DeleteDC(memDC);
+
+    ::SelectObject(hSrcDC,hOldBmp);
+    ::DeleteDC(hSrcDC);
 
 }
+
+VOID SkinEx_DrawScrollBar(LPSCROLLBAR psb,HDC hDC,BOOL fVert)
+{
+    RECT rcGroove;
+    SkinEx_GetGrooveRect(psb,&rcGroove,fVert);
+    SkinEx_DrawGroove(psb,hDC,&rcGroove,fVert);
+    
+    SkinEx_DrawArrow(psb,hDC,fVert,HITTEST_SCROLLBAR_LINEUP,0);
+    SkinEx_DrawArrow(psb,hDC,fVert,HITTEST_SCROLLBAR_LINEDOWN,0);
+
+    if(fVert)
+    {
+        if(SkinEx_IsScrollInfoActive(&psb->Vert))
+            SkinEx_DrawThumb(psb,hDC,fVert);
+    }
+    else
+    {
+        if(SkinEx_IsScrollInfoActive(&psb->Horz))
+            SkinEx_DrawThumb(psb,hDC,fVert);
+    }
+}
+
+
 
 BOOL SkinEx_DrawSizeBox(LPSCROLLBAR psb,HDC hDC)
 {
+    if(!psb || !hDC) return FALSE;
+    RECT            rect;
+    RECT            rc;
+    ::GetWindowRect(psb->hwnd,&rect);
+    SkinEx_GetSizeBoxRect(psb,&rc);
+    ::OffsetRect(&rc,-rect.left,-rect.top);
 
+    HDC hMemDC=::CreateCompatibleDC(NULL);
+    HBITMAP hOldBmp=(HBITMAP)::SelectObject(hMemDC,psb->hBmp);
+    
+    ::BitBlt(hDC,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,hMemDC,38,57,SRCCOPY);
+
+    ::SelectObject(hMemDC,hOldBmp);
+    ::DeleteDC(hMemDC);
+    return TRUE;
 }
+
 
 VOID SkinEx_Track(LPSCROLLBAR psb,BOOL fVert,UINT nHit,POINT pt)
 {
+    UINT            disFlags;
+    LPSCROLLINFO    psi;
+    WORD            wSBCode;
+
+    psi = fVert ? &psb->Vert : &psb->Horz;
+    disFlags = SkinEx_GetDisableFlags(psb, fVert);
+
+    switch( nHit )
+    {
+    case HITTEST_SCROLLBAR_THUMB:
+        {
+            SCROLLBARCALC sbclc;
+            SkinEx_ScrollBarCalc(psb, &sbclc, fVert);
+            psi->nTrackPos    = psi->nPos;
+            psb->nOffsetPoint = (fVert ? pt.y : pt.x) - sbclc.pixelThumbTop;
+        }break;
+    case HITTEST_SCROLLBAR_LINEUP:
+        {
+            wSBCode = SB_LINEUP;
+            psb->nScrollTimerMsg = MAKELONG(fVert ? WM_VSCROLL : WM_HSCROLL, wSBCode);
+            SendScrollBarMessage(psb->hwnd, wSBCode, 0, fVert);
+            SetTimer(psb->hwnd, SCROLLBAR_TIMER_DELAY, SCROLLBAR_SCROLL_DELAY, NULL);
+        }break;
+    case HITTEST_SCROLLBAR_LINEDOWN:
+        {
+            wSBCode = SB_LINEDOWN;
+            psb->nScrollTimerMsg = MAKELONG(fVert ? WM_VSCROLL : WM_HSCROLL, wSBCode);
+            SendScrollBarMessage(psb->hwnd, wSBCode, 0, fVert);
+            SetTimer(psb->hwnd, SCROLLBAR_TIMER_DELAY, SCROLLBAR_SCROLL_DELAY, NULL);
+        }break;
+    case HITTEST_SCROLLBAR_PAGEDOWN:
+        {
+            wSBCode = SB_PAGEDOWN;
+            psb->nScrollTimerMsg = MAKELONG(fVert ? WM_VSCROLL : WM_HSCROLL, wSBCode);
+            SendScrollBarMessage(psb->hwnd, wSBCode, 0, fVert);
+            SetTimer(psb->hwnd, SCROLLBAR_TIMER_DELAY, SCROLLBAR_SCROLL_DELAY, NULL);
+        }break;
+    case HITTEST_SCROLLBAR_PAGEUP:
+        {
+            wSBCode = SB_PAGEUP;
+            psb->nScrollTimerMsg = MAKELONG(fVert ? WM_VSCROLL : WM_HSCROLL, wSBCode);
+            SendScrollBarMessage(psb->hwnd, wSBCode, 0, fVert);
+            SetTimer(psb->hwnd, SCROLLBAR_TIMER_DELAY, SCROLLBAR_SCROLL_DELAY, NULL);
+        }break;
+    DEFAULT_UNREACHABLE;
+    }
+
+    psb->nTrackCode  = nHit;
+    psb->fTrackVert  = fVert;
+    psb->fTracking   = TRUE;
+
+    SkinEx_HotTrack(psb, nHit, fVert, TRUE);
+    ::SetCapture(psb->hwnd);
 
 }
 
@@ -390,7 +639,7 @@ LRESULT SkinEx_OnNcHitTest(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam)
 
 }
 
-LRESULT SkinEx_OnNcPaint(LPSCROLLBAR psb,WAPRAM wParam,LPARAM lParam)
+LRESULT SkinEx_OnNcPaint(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam)
 {
 
 }
@@ -420,7 +669,7 @@ LRESULT SkinEx_OnMouseMove(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam)
 
 }
 
-LRESULT SkinEx_OnLButtonUp(LPSCROLLBAR psb,WAPRAM wParam,LPARAM lParam)
+LRESULT SkinEx_OnLButtonUp(LPSCROLLBAR psb,WPARAM wParam,LPARAM lParam)
 {
 
 }

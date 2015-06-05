@@ -57,7 +57,7 @@
 // 滚动条状态 代码
 #define SCROLLBAR_STATE_DEFAULT         0x00000000L
 #define SCROLLBAR_STATE_NORMAL          0x00000001L
-#define SCROLLBAR_STATE_HOTTARACKED     0x00000002L
+#define SCROLLBAR_STATE_HOTTRACKED      0x00000002L
 #define SCROLLBAR_STATE_PRESSED         0x00000003L
 #define SCROLLBAR_STATE_DISABLED        0x00000004L
 
@@ -142,13 +142,13 @@ BOOL SkinEx_GetGrooveRect(LPSCROLLBAR psb,LPRECT lprc,BOOL fVert);
 
 
 
-VOID SkinEx_DrawScrollBar(LPSCROLLBAR psb,HDC hDC,BOOL fVert);
-
 BOOL SkinEx_DrawGroove(LPSCROLLBAR psb,HDC hDC,LPRECT lprc,BOOL fVert);
+
+BOOL SkinEx_DrawArrow(LPSCROLLBAR psb,HDC hDC,BOOL fVert,INT nArrow,UINT uState);
 
 VOID SkinEx_DrawThumb(LPSCROLLBAR psb,HDC hDC,BOOL fVert);
 
-BOOL SkinEx_DrawArrow(LPSCROLLBAR psb,HDC hDC,BOOL fVert,INT nArrow,UINT uState);
+VOID SkinEx_DrawScrollBar(LPSCROLLBAR psb,HDC hDC,BOOL fVert);
 
 BOOL SkinEx_DrawSizeBox(LPSCROLLBAR psb,HDC hDC);
 
